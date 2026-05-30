@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Importers That Make Sales</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #F7F0E6;
+    --warm-white: #FDFAF5;
+    --terracotta: #C4663A;
+    --terracotta-light: #E8855A;
+    --brown: #5C3D2E;
+    --brown-light: #8B6355;
+    --gold: #D4A843;
+    --gold-light: #F0C96A;
+    --dark: #1A0F08;
+    --text: #2C1A0F;
+    --text-muted: #7A5C4E;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--warm-white); color: var(--text); font-family: 'DM Sans', sans-serif; overflow-x: hidden; }
+
+/* URGENT BAR */
+.urgent-bar {
+position: fixed; top: 0; left: 0; right: 0;
+background: var(–terracotta); color: white;
+text-align: center; padding: 10px 16px;
+font-size: 13px; font-weight: 500; z-index: 1000;
+}
+.urgent-bar span { font-weight: 700; }
+
+/* TOAST NOTIFICATION */
+.toast {
+position: fixed; bottom: 24px; left: 50%;
+transform: translateX(-50%) translateY(100px);
+background: var(–dark); color: var(–cream);
+padding: 12px 20px; border-radius: 8px;
+font-size: 13px; font-weight: 500;
+border-left: 3px solid var(–terracotta);
+z-index: 999; transition: transform 0.4s ease;
+white-space: nowrap; box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+/* COUNTDOWN */
+.countdown-bar {
+background: var(–dark); padding: 16px 24px;
+text-align: center; margin-top: 44px;
+}
+.countdown-label {
+font-size: 11px; letter-spacing: 0.2em;
+text-transform: uppercase; color: var(–gold);
+margin-bottom: 8px; font-weight: 600;
+}
+.countdown-timer {
+display: flex; justify-content: center;
+gap: 16px; align-items: center;
+}
+.time-block { text-align: center; }
+.time-num {
+font-family: ‘Playfair Display’, serif;
+font-size: 36px; font-weight: 700;
+color: var(–cream); line-height: 1;
+display: block; min-width: 60px;
+}
+.time-label { font-size: 10px; color: rgba(247,240,230,0.4); letter-spacing: 0.1em; text-transform: uppercase; margin-top: 4px; }
+.time-sep { font-size: 28px; color: var(–terracotta); font-weight: 700; margin-bottom: 16px; }
+.slots-left {
+margin-top: 12px; font-size: 13px;
+color: rgba(247,240,230,0.6);
+}
+.slots-left strong { color: var(–terracotta-light); }
+
+/* HERO */
+.hero {
+min-height: 100vh; background: var(–dark);
+position: relative; display: flex; flex-direction: column;
+justify-content: center; align-items: center;
+text-align: center; padding: 80px 24px 60px; overflow: hidden;
+}
+.hero::before {
+content: ‘’; position: absolute; inset: 0;
+background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(196,102,58,0.25) 0%, transparent 70%),
+radial-gradient(ellipse 60% 40% at 80% 100%, rgba(212,168,67,0.15) 0%, transparent 60%);
+}
+.hero-eyebrow {
+position: relative; font-size: 11px; font-weight: 600;
+letter-spacing: 0.2em; text-transform: uppercase;
+color: var(–gold); margin-bottom: 24px;
+display: flex; align-items: center; gap: 12px;
+animation: fadeUp 0.8s ease both;
+}
+.hero-eyebrow::before, .hero-eyebrow::after {
+content: ‘’; height: 1px; width: 40px;
+background: var(–gold); opacity: 0.5;
+}
+.hero-title {
+position: relative; font-family: ‘Playfair Display’, serif;
+font-size: clamp(42px, 8vw, 88px); font-weight: 900;
+line-height: 1.0; color: var(–cream); margin-bottom: 12px;
+animation: fadeUp 0.8s 0.1s ease both;
+}
+.hero-title em { font-style: italic; color: var(–terracotta-light); }
+.hero-subtitle {
+position: relative; font-family: ‘DM Serif Display’, serif;
+font-style: italic; font-size: clamp(18px, 3vw, 28px);
+color: var(–gold-light); margin-bottom: 32px;
+animation: fadeUp 0.8s 0.2s ease both;
+}
+.hero-desc {
+position: relative; max-width: 560px; font-size: 16px;
+line-height: 1.7; color: rgba(247,240,230,0.75);
+margin-bottom: 48px; animation: fadeUp 0.8s 0.3s ease both;
+}
+.hero-cta { position: relative; display: inline-flex; flex-direction: column; align-items: center; gap: 12px; animation: fadeUp 0.8s 0.4s ease both; }
+.btn-primary {
+background: var(–terracotta); color: white;
+padding: 18px 48px; border-radius: 4px;
+font-size: 16px; font-weight: 600; letter-spacing: 0.02em;
+text-decoration: none; display: inline-block;
+transition: all 0.2s; border: none; cursor: pointer;
+}
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(196,102,58,0.4); }
+.price-display { color: var(–cream); font-size: 15px; }
+.price-display strong { color: var(–gold-light); font-size: 20px; }
+.hero-stats {
+position: relative; display: flex; gap: 40px;
+margin-top: 64px; padding-top: 40px;
+border-top: 1px solid rgba(247,240,230,0.1);
+animation: fadeUp 0.8s 0.5s ease both;
+}
+.stat { text-align: center; }
+.stat-num { font-family: ‘Playfair Display’, serif; font-size: 32px; font-weight: 700; color: var(–gold-light); display: block; }
+.stat-label { font-size: 12px; color: rgba(247,240,230,0.5); letter-spacing: 0.05em; }
+
+/* SECTIONS */
+.container { max-width: 720px; margin: 0 auto; }
+.section-label { font-size: 11px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(–terracotta); margin-bottom: 16px; }
+.divider { width: 48px; height: 3px; background: var(–terracotta); margin-bottom: 32px; }
+
+.pain { background: var(–cream); padding: 80px 24px; }
+.pain-title { font-family: ‘Playfair Display’, serif; font-size: clamp(28px, 5vw, 44px); font-weight: 700; line-height: 1.2; color: var(–brown); margin-bottom: 32px; }
+.pain-list { list-style: none; display: flex; flex-direction: column; gap: 16px; margin-bottom: 40px; }
+.pain-list li { display: flex; align-items: flex-start; gap: 16px; padding: 20px; background: white; border-left: 3px solid var(–terracotta); border-radius: 0 8px 8px 0; font-size: 15px; line-height: 1.6; }
+.pain-list li::before { content: ‘→’; color: var(–terracotta); font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+.pain-closer { font-size: 17px; line-height: 1.7; color: var(–brown); font-style: italic; border-left: 3px solid var(–gold); padding-left: 20px; }
+
+.economy { background: var(–brown); padding: 80px 24px; text-align: center; }
+.economy-title { font-family: ‘Playfair Display’, serif; font-size: clamp(26px, 4vw, 40px); font-weight: 700; color: var(–cream); line-height: 1.3; margin-bottom: 20px; }
+.economy-title em { color: var(–gold-light); font-style: italic; }
+.economy-body { font-size: 16px; line-height: 1.8; color: rgba(247,240,230,0.8); max-width: 580px; margin: 0 auto 40px; }
+.economy-numbers { display: flex; justify-content: center; gap: 32px; flex-wrap: wrap; }
+.econ-card { background: rgba(247,240,230,0.08); border: 1px solid rgba(212,168,67,0.3); border-radius: 8px; padding: 24px 32px; text-align: center; }
+.econ-num { font-family: ‘Playfair Display’, serif; font-size: 36px; font-weight: 700; color: var(–gold-light); display: block; }
+.econ-label { font-size: 13px; color: rgba(247,240,230,0.6); margin-top: 4px; }
+
+/* TESTIMONIALS */
+.testimonial-section { background: var(–warm-white); padding: 80px 24px; }
+.testimonials-grid { display: flex; flex-direction: column; gap: 24px; max-width: 720px; margin: 0 auto; }
+.testimonial-card {
+background: white; border-radius: 12px; padding: 32px;
+position: relative; box-shadow: 0 4px 24px rgba(92,61,46,0.06);
+border-left: 4px solid var(–terracotta);
+}
+.testimonial-card.gold-border { border-left-color: var(–gold); }
+.testimonial-text { font-size: 16px; line-height: 1.7; color: var(–brown); margin-bottom: 16px; }
+.testimonial-author { font-size: 12px; color: var(–text-muted); font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; }
+.testimonial-badge { display: inline-block; background: var(–terracotta); color: white; font-size: 10px; font-weight: 600; letter-spacing: 0.1em; padding: 3px 10px; border-radius: 20px; margin-bottom: 12px; text-transform: uppercase; }
+.testimonial-badge.gold { background: var(–gold); color: var(–dark); }
+.result-tag { display: inline-flex; align-items: center; gap: 6px; background: #FFF3ED; color: var(–terracotta); font-size: 12px; font-weight: 600; padding: 4px 12px; border-radius: 20px; margin-top: 12px; }
+
+/* MODULES */
+.modules { background: var(–dark); padding: 80px 24px; }
+.modules-title { font-family: ‘Playfair Display’, serif; font-size: clamp(28px, 4vw, 42px); font-weight: 700; color: var(–cream); text-align: center; margin-bottom: 8px; }
+.modules-sub { text-align: center; color: rgba(247,240,230,0.5); font-size: 15px; margin-bottom: 48px; }
+.modules-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; max-width: 800px; margin: 0 auto 48px; }
+.module-item { background: rgba(247,240,230,0.05); border: 1px solid rgba(247,240,230,0.1); border-radius: 8px; padding: 20px; display: flex; gap: 16px; align-items: flex-start; transition: all 0.2s; }
+.module-item:hover { background: rgba(247,240,230,0.08); border-color: rgba(212,168,67,0.3); }
+.module-num { font-family: ‘Playfair Display’, serif; font-size: 28px; font-weight: 700; color: var(–terracotta); opacity: 0.6; line-height: 1; flex-shrink: 0; }
+.module-name { font-size: 14px; font-weight: 600; color: var(–cream); line-height: 1.4; }
+
+/* WHO */
+.who { background: var(–cream); padding: 80px 24px; }
+.who-title { font-family: ‘Playfair Display’, serif; font-size: clamp(28px, 4vw, 40px); font-weight: 700; color: var(–brown); margin-bottom: 40px; }
+.who-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.who-card { background: white; border-radius: 8px; padding: 24px; border-top: 3px solid var(–terracotta); }
+.who-card h4 { font-family: ‘DM Serif Display’, serif; font-size: 17px; color: var(–brown); margin-bottom: 8px; }
+.who-card p { font-size: 14px; color: var(–text-muted); line-height: 1.6; }
+
+/* PRICING */
+.pricing { background: white; padding: 80px 24px; text-align: center; }
+.pricing-card { max-width: 480px; margin: 0 auto; background: var(–dark); border-radius: 16px; padding: 48px 40px; position: relative; overflow: hidden; }
+.pricing-card::before { content: ‘’; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(–terracotta), var(–gold)); }
+.pricing-label { font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: var(–gold); margin-bottom: 16px; font-weight: 600; }
+.pricing-title { font-family: ‘Playfair Display’, serif; font-size: 28px; color: var(–cream); margin-bottom: 8px; }
+.pricing-amount { font-family: ‘Playfair Display’, serif; font-size: 56px; font-weight: 900; color: var(–gold-light); line-height: 1; margin: 24px 0 8px; }
+.pricing-amount span { font-size: 24px; vertical-align: super; }
+.pricing-note { font-size: 13px; color: rgba(247,240,230,0.5); margin-bottom: 8px; }
+.pricing-deadline { font-size: 13px; color: var(–terracotta-light); font-weight: 600; margin-bottom: 32px; }
+.pricing-features { list-style: none; text-align: left; margin-bottom: 32px; display: flex; flex-direction: column; gap: 12px; }
+.pricing-features li { display: flex; align-items: center; gap: 12px; font-size: 14px; color: rgba(247,240,230,0.8); }
+.pricing-features li::before { content: ‘✓’; color: var(–gold); font-weight: 700; flex-shrink: 0; }
+.btn-gold { display: block; width: 100%; background: linear-gradient(135deg, var(–terracotta), var(–terracotta-light)); color: white; padding: 18px; border-radius: 6px; font-size: 16px; font-weight: 700; text-decoration: none; transition: all 0.2s; border: none; cursor: pointer; letter-spacing: 0.02em; }
+.btn-gold:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(196,102,58,0.5); }
+.slots-warning { margin-top: 16px; font-size: 13px; color: var(–terracotta-light); font-weight: 500; }
+
+/* FOOTER */
+.footer-cta { background: var(–terracotta); padding: 64px 24px; text-align: center; }
+.footer-cta h2 { font-family: ‘Playfair Display’, serif; font-size: clamp(24px, 4vw, 36px); color: white; margin-bottom: 16px; line-height: 1.3; }
+.footer-cta p { color: rgba(255,255,255,0.8); font-size: 16px; margin-bottom: 32px; max-width: 500px; margin-left: auto; margin-right: auto; }
+.btn-white { display: inline-block; background: white; color: var(–terracotta); padding: 16px 40px; border-radius: 4px; font-size: 16px; font-weight: 700; text-decoration: none; transition: all 0.2s; }
+.btn-white:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.2); }
+footer { background: var(–dark); padding: 24px; text-align: center; font-size: 12px; color: rgba(247,240,230,0.3); }
+
+@keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+
+@media(max-width: 560px) {
+.who-grid { grid-template-columns: 1fr; }
+.hero-stats { gap: 24px; }
+.economy-numbers { gap: 16px; }
+.pricing-card { padding: 32px 24px; }
+.time-num { font-size: 28px; }
+}
+
+.text-center { text-align: center; }
+.text-center .divider { margin-left: auto; margin-right: auto; }
+</style>
+
+</head>
+<body>
+
+<div class="urgent-bar">
+  ⏳ 48-hour price. <span>₦28,800 ends soon.</span> After this, price goes up. No exceptions.
+</div>
+
+<!-- TOAST -->
+
+<div class="toast" id="toast">🔥 Someone just secured a slot</div>
+
+<!-- COUNTDOWN -->
+
+<div class="countdown-bar">
+  <div class="countdown-label">This price disappears in</div>
+  <div class="countdown-timer">
+    <div class="time-block"><span class="time-num" id="hours">48</span><div class="time-label">Hours</div></div>
+    <div class="time-sep">:</div>
+    <div class="time-block"><span class="time-num" id="minutes">00</span><div class="time-label">Minutes</div></div>
+    <div class="time-sep">:</div>
+    <div class="time-block"><span class="time-num" id="seconds">00</span><div class="time-label">Seconds</div></div>
+  </div>
+  <div class="slots-left">Only <strong id="slots-count">7</strong> slots remaining at this price</div>
+</div>
+
+<!-- HERO -->
+
+<section class="hero">
+  <div class="hero-eyebrow">The Course That Changes Everything</div>
+  <h1 class="hero-title">Importers That<br><em>Make Sales</em></h1>
+  <p class="hero-subtitle">Not just importers. Sellers.</p>
+  <p class="hero-desc">The complete system for sourcing gadgets from China and turning them into consistent income — even if you have no capital, no contacts, and no idea where to start.</p>
+  <div class="hero-cta">
+    <a href="#pricing" class="btn-primary">Secure My Slot Now →</a>
+    <div class="price-display">₦28,800 for the next <strong id="hero-hours">48</strong> hours only</div>
+  </div>
+  <div class="hero-stats">
+    <div class="stat"><span class="stat-num">12</span><span class="stat-label">Modules</span></div>
+    <div class="stat"><span class="stat-num">90+</span><span class="stat-label">Gadget Customers</span></div>
+    <div class="stat"><span class="stat-num">10+</span><span class="stat-label">Students Winning</span></div>
+  </div>
+</section>
+
+<!-- PAIN -->
+
+<section class="pain">
+  <div class="container">
+    <p class="section-label">Read this carefully</p>
+    <h2 class="pain-title">You planned to start a business this year.<br>So why hasn't it happened yet?</h2>
+    <ul class="pain-list">
+      <li>You have been waiting to "have enough money" to start — but that day never comes</li>
+      <li>You tried selling something before and it didn't work — and you've been wondering if business is even for you</li>
+      <li>You see other importers posting results on TikTok and wonder what they know that you don't</li>
+      <li>You are tired of watching the economy get harder while your income stays exactly the same</li>
+    </ul>
+    <p class="pain-closer">"The problem is not that you're not hardworking. The problem is that nobody has shown you the full picture — niche, sourcing, pricing, content, and sales — all in one place. Until now."</p>
+  </div>
+</section>
+
+<!-- ECONOMY -->
+
+<section class="economy">
+  <div class="container">
+    <h2 class="economy-title">The naira keeps falling.<br><em>Your income doesn't have to fall with it.</em></h2>
+    <p class="economy-body">Every month you wait is a month someone else is building the business you should have started. Gadget importation is one of the few businesses where you collect your customer's money first, then place the order. No capital. No risk. Just the right system.</p>
+    <div class="economy-numbers">
+      <div class="econ-card"><span class="econ-num">₦20k–₦50k</span><div class="econ-label">Profit per device</div></div>
+      <div class="econ-card"><span class="econ-num">Pre-order</span><div class="econ-label">Collect before you import</div></div>
+      <div class="econ-card"><span class="econ-num">Zero</span><div class="econ-label">Upfront capital needed</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+
+<section class="testimonial-section">
+  <div class="container">
+    <p class="section-label text-center">Real students. Real results.</p>
+    <div class="divider" style="margin: 0 auto 48px;"></div>
+    <div class="testimonials-grid">
+
+```
+  <div class="testimonial-card gold-border">
+    <div class="testimonial-badge gold">⭐ Voice Note Review</div>
+    <p class="testimonial-text">"I've been in importation since 2011. I've made a lot of money in this business. But things change — new information, new platforms. I took your course as a refresher and I'm glad I did. It's really interesting, informative, very packed full. I hope to venture back in and make a whole lot of money for myself."</p>
+    <p class="testimonial-author">— Returning importer, in the game since 2011</p>
+  </div>
+
+  <div class="testimonial-card">
+    <div class="testimonial-badge">First Importation</div>
+    <p class="testimonial-text">"Coach!!! My goods from China just landed today!!! I can't even explain how excited I am right now! I actually did it — I faced my fear, trusted the process, and everything came through successfully! 🙌✨ For anyone still scared or doubting themselves... please don't give up. If I can overcome that fear and get my goods safely, YOU CAN TOO. Just take the step. The fear will disappear once you move!"</p>
+    <p class="testimonial-author">— Fola, student</p>
+    <div class="result-tag">📦 First order from China delivered</div>
+  </div>
+
+  <div class="testimonial-card">
+    <div class="testimonial-badge">First Importation</div>
+    <p class="testimonial-text">"Hi everyone, my first goods from China, shipped by me has landed... appreciation goes to my coach for putting me through 💕"</p>
+    <p class="testimonial-author">— HaLimart, student</p>
+    <div class="result-tag">📦 First order landed successfully</div>
+  </div>
+
+  <div class="testimonial-card">
+    <div class="testimonial-badge">Student Win</div>
+    <p class="testimonial-text">"I just got my imported items to my location yesterday!!!!! A very special thanks to my amazing coach 🌸 — you're an excellent instructor 🔥"</p>
+    <p class="testimonial-author">— Student, Allneedsimports community</p>
+    <div class="result-tag">📦 Goods delivered to location</div>
+  </div>
+
+  <div class="testimonial-card">
+    <div class="testimonial-badge">Repeat Importer</div>
+    <p class="testimonial-text">"My fifth time ordering from China 🤍😌"</p>
+    <p class="testimonial-author">— Eyinju, student</p>
+    <div class="result-tag">🔁 5 successful orders and counting</div>
+  </div>
+
+  <div class="testimonial-card">
+    <div class="testimonial-badge">Student Win</div>
+    <p class="testimonial-text">"My goods done land o 🎊🎊🎊 thank u our teacher"</p>
+    <p class="testimonial-author">— Vicky, student</p>
+    <div class="result-tag">📦 Successfully received first shipment</div>
+  </div>
+
+  <div class="testimonial-card">
+    <div class="testimonial-badge">Community Win</div>
+    <p class="testimonial-text">"my first importation don land ooo ❤️"</p>
+    <p class="testimonial-author">— Angela, student</p>
+    <div class="result-tag">📦 First importation complete</div>
+  </div>
+
+</div>
+```
+
+  </div>
+</section>
+
+<!-- MODULES -->
+
+<section class="modules">
+  <div class="container">
+    <h2 class="modules-title">12 Modules. Zero Fluff.</h2>
+    <p class="modules-sub">Everything you need to go from zero to first sale — and beyond.</p>
+    <div class="modules-grid">
+      <div class="module-item"><span class="module-num">01</span><span class="module-name">Niche Selection — Find gadgets that actually sell</span></div>
+      <div class="module-item"><span class="module-num">02</span><span class="module-name">Sourcing on 1688, Pinduoduo & Taobao</span></div>
+      <div class="module-item"><span class="module-num">03</span><span class="module-name">Xianyu — deals nobody else is finding</span></div>
+      <div class="module-item"><span class="module-num">04</span><span class="module-name">Pricing for profit, not just to move products</span></div>
+      <div class="module-item"><span class="module-num">05</span><span class="module-name">Shipping & clearing — what nobody tells you</span></div>
+      <div class="module-item"><span class="module-num">06</span><span class="module-name">The pre-order model — sell before you import</span></div>
+      <div class="module-item"><span class="module-num">07</span><span class="module-name">Content strategy that builds trust and drives sales</span></div>
+      <div class="module-item"><span class="module-num">08</span><span class="module-name">TikTok organic growth for importers</span></div>
+      <div class="module-item"><span class="module-num">09</span><span class="module-name">TikTok ads that bring real buyers</span></div>
+      <div class="module-item"><span class="module-num">10</span><span class="module-name">WhatsApp sales system & objection handling</span></div>
+      <div class="module-item"><span class="module-num">11</span><span class="module-name">Customer experience & repeat buyers</span></div>
+      <div class="module-item"><span class="module-num">12</span><span class="module-name">Scaling — from side income to full business</span></div>
+    </div>
+    <div style="text-align:center;">
+      <a href="#pricing" class="btn-primary">I'm Ready — Secure My Slot →</a>
+    </div>
+  </div>
+</section>
+
+<!-- WHO -->
+
+<section class="who">
+  <div class="container">
+    <p class="section-label">Is this for you?</p>
+    <h2 class="who-title">This course was built for people who are serious.</h2>
+    <div class="who-grid">
+      <div class="who-card"><h4>The Frustrated Employee</h4><p>Your salary enters and disappears. You've been saying "I need to start something" for too long. You need a real system, not motivation.</p></div>
+      <div class="who-card"><h4>The Failed Starter</h4><p>You tried selling before and it didn't work. It wasn't you — it was the information. Wrong niche, wrong sourcing, wrong pricing. This fixes all three.</p></div>
+      <div class="who-card"><h4>The Stuck Sourcer</h4><p>You're already importing but not making real profit. You need to fix your sourcing, pricing, or content — or all three.</p></div>
+      <div class="who-card"><h4>The Scaling Importer</h4><p>You're making sales but want to add TikTok ads, grow your audience, and turn this into something serious.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+
+<section class="pricing" id="pricing">
+  <div class="container text-center">
+    <p class="section-label">Your investment</p>
+    <h2 style="font-family:'Playfair Display',serif; font-size:clamp(28px,4vw,40px); color:var(--brown); margin-bottom:40px;">One price. Lifetime access. Real results.</h2>
+    <div class="pricing-card">
+      <p class="pricing-label">Complete Course Access</p>
+      <h3 class="pricing-title">Importers That Make Sales</h3>
+      <div class="pricing-amount"><span>₦</span>28,800</div>
+      <p class="pricing-note">One-time payment. No subscription. No hidden fees.</p>
+      <p class="pricing-deadline">⚡ This price is only available for <span id="pricing-hours">48</span> more hours</p>
+      <ul class="pricing-features">
+        <li>All 12 course modules — instant access</li>
+        <li>Sourcing guides for 1688, Pinduoduo, Taobao & Xianyu</li>
+        <li>TikTok organic + ads strategy</li>
+        <li>WhatsApp sales scripts & objection handling</li>
+        <li>The pre-order model explained step by step</li>
+        <li>Pricing formula for ₦20k–₦50k profit per device</li>
+      </ul>
+      <a href="https://nestuge.com/izibcs6hp" class="btn-gold">Pay ₦28,800 — Secure My Slot Now</a>
+      <p class="slots-warning">⚡ Only <span id="pricing-slots">7</span> slots at this price. After that, price goes up. No exceptions.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER CTA -->
+
+<section class="footer-cta">
+  <h2>The economy is not waiting for you to be ready.</h2>
+  <p>48 hours. 10 slots. Then this price is gone forever.</p>
+  <a href="https://nestuge.com/izibcs6hp" class="btn-white">Secure My Slot Before It's Gone →</a>
+</section>
+
+<footer>
+  <p>© 2026 Allneedsimports · @allneedsimports · Questions? WhatsApp Rosa</p>
+</footer>
+
+<script>
+  // COUNTDOWN — 48 hours from page load (in real use, set a fixed end date)
+  const endTime = new Date().getTime() + (48 * 60 * 60 * 1000);
+
+  function updateCountdown() {
+    const now = new Date().getTime();
+    const diff = endTime - now;
+    if (diff <= 0) {
+      document.getElementById('hours').textContent = '00';
+      document.getElementById('minutes').textContent = '00';
+      document.getElementById('seconds').textContent = '00';
+      return;
+    }
+    const h = Math.floor(diff / (1000 * 60 * 60));
+    const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const s = Math.floor((diff % (1000 * 60)) / 1000);
+    document.getElementById('hours').textContent = String(h).padStart(2, '0');
+    document.getElementById('minutes').textContent = String(m).padStart(2, '0');
+    document.getElementById('seconds').textContent = String(s).padStart(2, '0');
+    document.getElementById('hero-hours').textContent = String(h).padStart(2, '0');
+    document.getElementById('pricing-hours').textContent = String(h).padStart(2, '0');
+  }
+  setInterval(updateCountdown, 1000);
+  updateCountdown();
+
+  // SLOT COUNTER — slowly drops from 10
+  let slots = 10;
+  const slotsEl = document.getElementById('slots-count');
+  const pricingSlotsEl = document.getElementById('pricing-slots');
+
+  function dropSlot() {
+    if (slots > 3) {
+      slots--;
+      slotsEl.textContent = slots;
+      pricingSlotsEl.textContent = slots;
+    }
+  }
+  // Drop a slot every 8-20 minutes randomly
+  function scheduleSlotDrop() {
+    const delay = (Math.random() * 12 + 8) * 60 * 1000;
+    setTimeout(() => { dropSlot(); scheduleSlotDrop(); }, delay);
+  }
+  scheduleSlotDrop();
+
+  // TOAST NOTIFICATIONS
+  const names = [
+    "Someone in Lagos just secured a slot 🔥",
+    "Someone in Abuja just joined 🔥",
+    "A new student just enrolled 🔥",
+    "Someone just secured their slot 🔥",
+    "2 people are viewing this page right now",
+    "Someone in PH just joined 🔥",
+  ];
+  const toast = document.getElementById('toast');
+  let toastIndex = 0;
+
+  function showToast() {
+    toast.textContent = names[toastIndex % names.length];
+    toast.classList.add('show');
+    setTimeout(() => { toast.classList.remove('show'); }, 3500);
+    toastIndex++;
+    // Next toast in 25-50 seconds
+    setTimeout(showToast, (Math.random() * 25 + 25) * 1000);
+  }
+  setTimeout(showToast, 8000);
+</script>
+
+</body>
+</html>
